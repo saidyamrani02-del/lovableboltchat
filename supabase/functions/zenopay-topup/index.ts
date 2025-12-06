@@ -39,8 +39,13 @@ serve(async (req) => {
       formattedPhone = "255" + formattedPhone.substring(1);
     }
 
-    // Fetch ZenoPay API key from settings
-    const { data: apiSettings } = await supabaseClient
+    // Use service role to fetch API settings (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: apiSettings } = await supabaseAdmin
       .from('api_settings')
       .select('zenopay_api_key')
       .single();
